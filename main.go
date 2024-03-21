@@ -2,6 +2,7 @@ package main
 
 import (
 	"fmt"
+	"log"
 	"net/http"
 )
 
@@ -12,5 +13,5 @@ func main() {
 	// Handles static files from public directory
 	http.Handle("/", http.FileServer(http.Dir("./public")))
 
-	http.ListenAndServe(":3000", nil)
+	log.Fatal(http.ListenAndServe(":3000", nil))
 }
