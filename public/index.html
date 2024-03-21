@@ -1,10 +1,55 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <title>Go Chat App</title>
+    <link href="https://unpkg.com/tailwindcss@^1.0/dist/tailwind.min.css" rel="stylesheet">
 </head>
+
 <body>
     <h1>Welcome to the Go Chat App</h1>
+    <div id="chat-container" class="fixed bottom-16 right-4 w-96">
+        <div id="messages" class="bg-white shadow-md rounded-lg max-w-lg w-full p-4 h-80 overflow-y-auto"></div>
+        <div class="p-4 border-t flex">
+            <input type="text" id="nameInput"  class="w-full px-3 py-2 border rounded-l-md focus:outline-none focus:ring-2 focus:ring-blue-500" placeholder="Type your name...">
+            <input type="text" id="messageInput"  class="w-full px-3 py-2 border rounded-l-md focus:outline-none focus:ring-2 focus:ring-blue-500" placeholder="Type your message...">
+            <button id="sendButton" class="bg-blue-500 text-white px-4 py-2 rounded-r-md hover:bg-blue-600 transition duration-300" onclick="sendMessage()">Send</button>
+        </div>
+    </div>
 </body>
+<script>
+    const messages = document.getElementById("messages");
+    var ws = new WebSocket("ws://127.0.0.1:3000/ws/messages");
+    ws.addEventListener("message", function (e) {
+        const receivedMessage = JSON.parse(e.data);
+        const m = document.createElement("div");
+        const message = document.createElement("p");
+        m.className = "mb-2";
+        message.appendChild(document.createTextNode("" + receivedMessage.sender + " says: " + receivedMessage.text));
+        message.className = "bg-gray-200 text-gray-700 rounded-lg py-2 px-4 inline-block";
+        m.appendChild(message)
+        messages.appendChild(m);
+    });
+
+    function sendMessage() {
+        const messageInput = document.getElementById("messageInput");
+        const nameInput = document.getElementById("nameInput");
+        const message = {};
+        message.sender = nameInput.value
+        message.text = messageInput.value;
+
+        ws.send(JSON.stringify(message));
+
+        const m = document.createElement("div");
+        const mp = document.createElement("p");
+        m.className = "mb-2 text-right";
+        mp.appendChild(document.createTextNode("" + message.sender + " says: " + message.text));
+        mp.className = "bg-blue-500 text-white rounded-lg py-2 px-4 inline-block";
+        m.appendChild(mp)
+        messages.appendChild(m);
+        messageInput.value = "";
+    }
+</script>
+
 </html>
